@@ -1,6 +1,6 @@
 # Bloody React Image
 
-A slightly more robust React component for your image rendering/handling needs.
+A React component for your image rendering/handling needs.
 
 Featuring:
 
@@ -14,7 +14,8 @@ Featuring:
 
 ## What does this component do?
 
-This component first attempts to load your intended image. If this fails, it will attempt to render a fallback image if provided. Should the fallback image fail (or is not defined) as well, the component will simply render nothing at all and saves you from a broken image icon floating around on your view. That's the gist of it. Also note that, the image will only appear once it is fully loaded.
+This component first attempts to load your intended image. If this fails, it will attempt to render a fallback image if provided. Should the fallback image fail (or is not defined) as well, the component will simply render nothing at all and saves you from a broken image icon floating around on your view. That's the gist of it. Also note that, the image will only appear once it is fully loaded so you may want to add a placeholder (which you can pass in as props, see below for info).
+
 ## What About Support?
 
 ### Browser Support
@@ -38,30 +39,30 @@ You may install it via `yarn add bloody-react-image` or `npm install bloody-reac
 
 Below are a list of available props you can pass to the component. Basically, most image attributes you can pass to an img tag, you can do so for the component.
 
-| Prop             | Type            | Default Value                                                                                                                                                          | Description                                                                             |
-| ---------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| alt              | string          | undefined                                                                                                                                                              | The alt text for the image                                                                            |
-| ariaLabel        | string          | undefined                                                                                                                                                              | Used for accessibility                                                                  |
-| ariaLabelledBy   | string          | undefined                                                                                                                                                              | Used for accessibility                                                                  |
-| ariaDescribedBy  | string          | undefined                                                                                                                                                              | Used for accessibility                                                                  |
-| className        | string          | undefined                                                                                                                                                              | It's... a className                                                                     |
-| crossOrigin      | string          | undefined                                                                                                                                                              | Defines cross-origin handling. Can be of value **'anonymous'** or **'use-credentials'** |
-| decoding         | string          | undefined                                                                                                                                                              | Defines image decoding. Can be value of **'sync'**, **'async'** or **'auto'**           |
-| fallbackImageUrl | string          | undefined                                                                                                                                                              | Defines a fallback image to be used                                                     |
-| ImagePlaceholder | React Component | undefined                                                                                                                                                              | Defines a component that will be shown when the image is loading                        |
-| longdesc         | string          | undefined                                                                                                                                                              | Used for accessibility                                                                  |
-| sizes            | string or array | undefined                                                                                                                                                              | Defines image sizes                                                                     |
-| src              | string          | undefined                                                                                                                                                              | The image source URL                                                                    |
-| srcSet           | string or array | undefined                                                                                                                                                              | Defines image sizes                                                                     |
+| Prop             | Type            | Default Value | Description                                                                             |
+| ---------------- | --------------- | ------------- | --------------------------------------------------------------------------------------- |
+| alt              | string          | undefined     | The alt text for the image                                                              |
+| ariaLabel        | string          | undefined     | Used for accessibility                                                                  |
+| ariaLabelledBy   | string          | undefined     | Used for accessibility                                                                  |
+| ariaDescribedBy  | string          | undefined     | Used for accessibility                                                                  |
+| className        | string          | undefined     | It's... a className                                                                     |
+| crossOrigin      | string          | undefined     | Defines cross-origin handling. Can be of value **'anonymous'** or **'use-credentials'** |
+| decoding         | string          | undefined     | Defines image decoding. Can be value of **'sync'**, **'async'** or **'auto'**           |
+| fallbackImageUrl | string          | undefined     | Defines a fallback image to be used                                                     |
+| ImagePlaceholder | React Component | undefined     | Defines a component that will be shown when the image is loading                        |
+| longdesc         | string          | undefined     | Used for accessibility                                                                  |
+| sizes            | string or array | undefined     | Defines image sizes                                                                     |
+| src              | string          | undefined     | The image source URL                                                                    |
+| srcSet           | string or array | undefined     | Defines image sizes                                                                     |
 
-| Prop             | Type            | Default Value | Return Values | Description |
-| ---------------- | --------------- | --------------- | --------------- | --------------- |
-| onErrorImage | function | undefined | { imgSrc: string, isLoaded: boolean, isLoading: boolean, error: Error  } | Defines an error handler for if it occurs during image load. Returns a state object
-| onLoadImage | function | undefined | { imgSrc: string, isLoaded: boolean, isLoading: boolean, error: Error  } | Defines an onload handler when image loads. Returns a state object
+| Prop         | Type     | Default Value | Return Values                                                           | Description                                                                         |
+| ------------ | -------- | ------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| onErrorImage | function | undefined     | { imgSrc: string, isLoaded: boolean, isLoading: boolean, error: Error } | Defines an error handler for if it occurs during image load. Returns a state object |
+| onLoadImage  | function | undefined     | { imgSrc: string, isLoaded: boolean, isLoading: boolean, error: Error } | Defines an onload handler when image loads. Returns a state object                  |
 
-| Prop             | Type            | Default Value |
-| ---------------- | --------------- | --------------- |
-| style            | object          | **{ objectFit: 'contain', objectPosition: '50% 50%'}**  or for background imagery, **{display: 'block', backgroundPosition: 'contain', backgroundRepeat: 'no-repeat', backgroundSize: 'fit' }** | Base styles are included by default
+| Prop  | Type   | Default Value                                                                                                                                                                                  |
+| ----- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| style | object | **{ objectFit: 'contain', objectPosition: '50% 50%'}** or for background imagery, **{display: 'block', backgroundPosition: 'contain', backgroundRepeat: 'no-repeat', backgroundSize: 'fit' }** | Base styles are included by default |
 
 ## How Do I Use This?
 
@@ -110,12 +111,16 @@ import { Img } from 'bloody-react-image';
 
 ### Placeholders
 
-You can stick another component as a placeholder while the image is loading.
+You can stick another component as a placeholder while the image is loading. Note that there are 3 props that will be available to you:
+
+- **isImgLoading: boolean**
+- **isImgLoaded: boolean**
+- **isImgError: string | Error**.
 
 Simply create one:
 
 ```
-export const FunnyImagePlaceholder = () => <div>This Funny Image Placeholder Is Not Funny...</div>;
+export const FunnyImagePlaceholder = ({ isImgLoading, isImgLoaded, isImgError }) => <div>This Funny Image Placeholder Is Not Funny...</div>;
 ```
 
 ```
@@ -164,7 +169,7 @@ The component was designed to try to accommodate common use cases for convenienc
 import { Img } from 'bloody-react-image';
 import { styled } from 'styled-components';
 
-const StyledImage = styled.div`
+const StyledImage = styled.figure`
   > img
     display: block;
     width: 100%;
@@ -192,4 +197,4 @@ You can try to use Bloody React Image together with another package called [Reac
 
 # Endword
 
-That is it for now, however, possibly, may be looking into adding a built-in progressive loading mechanism into the component and Jessica, if you're reading this... Call me.
+That is it for now, demos to be added soon and ossibly, may be looking into adding a built-in progressive loading mechanism into the component as default and Jessica, if you're reading this... Call me.
