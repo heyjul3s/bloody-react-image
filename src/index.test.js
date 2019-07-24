@@ -354,22 +354,6 @@ describe('React Image Engine', () => {
     expect(spyInvokePropsOnError).toBeCalled();
   });
 
-  test('imageSizingsToString - with ARRAY OF STRINGS', () => {
-    const spy = jest.spyOn(instance, 'imageSizingsToString');
-    const expected = 'elva-fairy-320w.jpg 320w, elva-fairy-480w.jpg 480w';
-
-    spy(['elva-fairy-320w.jpg 320w', 'elva-fairy-480w.jpg 480w']);
-    expect(spy).toReturnWith(expected);
-  });
-
-  test('imageSizingsToString - with STRING', () => {
-    const spy = jest.spyOn(instance, 'imageSizingsToString');
-    const expected = 'elva-fairy-320w.jpg 320w, elva-fairy-480w.jpg 480w';
-
-    spy('elva-fairy-320w.jpg 320w, elva-fairy-480w.jpg 480w');
-    expect(spy).toReturnWith(expected);
-  });
-
   test('props.onload - WITH props.onload defined, invoke props.onload', () => {
     const spy = jest.spyOn(instance, 'invokePropsOnload');
     spy();

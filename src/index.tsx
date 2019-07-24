@@ -1,12 +1,59 @@
-import React from 'react';
+import * as React from 'react';
 import * as utils from './utils';
-import { imgProptypes } from './index.propTypes';
 
-export class Img extends React.Component {
-  static propTypes = imgProptypes;
+export type ImgProps = {
+  alt: string;
+  ariaLabel?: string;
+  ariaLabelledBy?: string;
+  ariaDescribedBy?: string;
+  className?: string;
+  crossOrigin: CrossOriginType;
+  decode?: boolean;
+  decoding?: DecodingType;
+  fallbackImageUrl?: string;
+  fit?: FitType;
+  ImagePlaceholder?: React.ElementType<ImagePlaceholderProps>;
+  onload?: (imageState: PropsOnloadArg) => void;
+  onerror?: (imageState: PropsOnloadArg) => void;
+  onErrorImage: (event: React.SyntheticEvent) => void;
+  onLoadImage: (event: React.SyntheticEvent) => void;
+  position?: string;
+  role: string;
+  sizes?: string;
+  style?: React.CSSProperties;
+  src: string;
+  srcset?: string;
+};
 
+export type ImgState = {
+  imgSrc: string;
+  isLoading: boolean;
+  isLoaded: boolean;
+  error: Error | string | undefined;
+};
+
+export type ImagePlaceholderProps = {
+  isImgLoading: boolean;
+  isImgLoaded: boolean;
+  isImgError: Error | string | undefined;
+};
+
+export type FitType = 'contain' | 'cover';
+
+export type CrossOriginType = 'anonymous' | 'use-credentials' | undefined;
+
+export type DecodingType = 'async' | 'sync' | 'auto';
+
+export type ImageDimensions = {
+  imageWidth: number | undefined;
+  imageHeight: number | undefined;
+};
+
+export type PropsOnloadArg = ImgState & ImageDimensions;
+
+export class Img extends React.Component<ImgProps, ImgState> {
   state = {
-    imgSrc: void 0,
+    imgSrc: '',
     isLoading: false,
     isLoaded: false,
     error: void 0,
@@ -23,13 +70,18 @@ export class Img extends React.Component {
 
   get isLoadedImage() {
     /* istanbul ignore next */
-    const { imgSrc, isLoaded, isLoading, error } = this.state;
+    const { imgSrc, isLoaded, isLoading, error }: ImgState = this.state;
     return !!imgSrc && isLoaded && !isLoading && !error;
   }
 
   get imageStyles() {
     /* istanbul ignore next */
-    const { style = {}, fit = 'contain', position = '50% 50%' } = this.props;
+    const {
+      style = {},
+      fit = 'contain',
+      position = '50% 50%',
+    }: ImgProps = this.props;
+
     const { objectFit, objectPosition, ...styles } = style;
 
     return this.supportsObjectFit
@@ -56,22 +108,22 @@ export class Img extends React.Component {
     };
   }
 
-  get imageSrcset() {
-    const srcset = this.imageSizingsToString(this.props.srcset);
+  get imageSrcset(): string | undefined {
+    const { srcset } = this.props;
     return utils.isNonEmptyString(srcset) ? srcset : void 0;
   }
 
-  get imageSizes() {
-    const srcset = this.imageSizingsToString(this.props.srcset);
-    const sizes = this.imageSizingsToString(this.props.sizes);
-
+  get imageSizes(): string | undefined {
+    const { srcset, sizes } = this.props;
     return utils.isNonEmptyString(srcset) && utils.isNonEmptyString(sizes)
       ? sizes
       : void 0;
   }
 
-  get imageSourceFromProps() {
-    return this.state.error ? this.props.fallbackImageUrl : this.props.src;
+  get imageSourceFromProps(): string {
+    return this.state.error && !!this.props.fallbackImageUrl
+      ? this.props.fallbackImageUrl
+      : this.props.src;
   }
 
   componentDidMount() {
@@ -91,7 +143,7 @@ export class Img extends React.Component {
     );
   }
 
-  createNewImage(imgSrc) {
+  createNewImage(imgSrc: string): HTMLImageElement {
     let tempImage = new Image();
     tempImage.src = imgSrc;
     return tempImage;
@@ -102,7 +154,7 @@ export class Img extends React.Component {
     this.addOnLoadAndOnErrorHandlersToImage(tempImage);
   }
 
-  addOnLoadAndOnErrorHandlersToImage = tempImage => {
+  addOnLoadAndOnErrorHandlersToImage = (tempImage: HTMLImageElement) => {
     if (!tempImage) {
       this.onImageError(new Error('Invalid image.'));
       return;
@@ -116,7 +168,7 @@ export class Img extends React.Component {
     }
   };
 
-  onImageLoad = tempImage => () => {
+  onImageLoad = (tempImage: HTMLImageElement) => () => {
     this.setState(
       () => ({
         isLoading: false,
@@ -127,7 +179,7 @@ export class Img extends React.Component {
     );
   };
 
-  onImageError = error => {
+  onImageError = (error: any) => {
     const errorMsg =
       error && error.message
         ? `${error.message}`
@@ -136,7 +188,7 @@ export class Img extends React.Component {
     if (!this.state.error && !!this.props.fallbackImageUrl) {
       this.setState(
         () => ({
-          imgSrc: this.props.fallbackImageUrl,
+          imgSrc: this.props.fallbackImageUrl || '',
           isLoading: true,
           isLoaded: false,
           error: errorMsg,
@@ -146,7 +198,7 @@ export class Img extends React.Component {
     } else {
       this.setState(
         () => ({
-          imgSrc: void 0,
+          imgSrc: '',
           isLoading: false,
           isLoaded: false,
           error: void 0,
@@ -158,7 +210,7 @@ export class Img extends React.Component {
     this.onImageError = null;
   };
 
-  invokePropsOnload = tempImage => () => {
+  invokePropsOnload = (tempImage: HTMLImageElement) => () => {
     /* istanbul ignore next */
     if (!!this.props.onload) {
       this.props.onload({
@@ -168,7 +220,7 @@ export class Img extends React.Component {
     }
   };
 
-  getLoadedTempImageDimensions(tempImage) {
+  getLoadedTempImageDimensions(tempImage: HTMLImageElement): ImageDimensions {
     return !!tempImage
       ? {
           imageWidth: tempImage.width,
@@ -188,18 +240,6 @@ export class Img extends React.Component {
     }
   };
 
-  imageSizingsToString(imageSizings) {
-    if (Array.isArray(imageSizings) && imageSizings.length) {
-      return imageSizings.join(', ');
-    }
-
-    if (utils.isNonEmptyString(imageSizings)) {
-      return imageSizings;
-    }
-
-    return void 0;
-  }
-
   render() {
     const {
       className,
@@ -209,7 +249,6 @@ export class Img extends React.Component {
       ariaLabel,
       ariaLabelledBy,
       ariaDescribedBy,
-      longdesc,
       onErrorImage,
       onLoadImage,
       ImagePlaceholder,
@@ -243,7 +282,6 @@ export class Img extends React.Component {
           aria-label={ariaLabel || alt}
           aria-labelledby={ariaLabelledBy}
           aria-describedby={ariaDescribedBy}
-          longdesc={longdesc}
           style={this.imageStyles}
         />
       );
@@ -257,7 +295,6 @@ export class Img extends React.Component {
           aria-label={ariaLabel || alt}
           aria-describedby={ariaDescribedBy}
           aria-labelledby={ariaLabelledBy}
-          longdesc={longdesc}
           style={this.backgroundImageStyles}
         >
           {this.props.children}
