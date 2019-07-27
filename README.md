@@ -4,12 +4,10 @@ A React component for your image rendering/handling needs.
 
 - ready to go image component
 - can be utilised to render a div background imagery (if you want to)
-- progressive image loading
 - custom placeholders for when image is loading
 - img srcset and sizes support and handling
-- CSS object-fit, object-position support and handling
 - WAI-ARIA support
-- IE 11 fallback (It is 2019, and next year we'll be in the roaring 20s... why do we hurt ourselves like this?)
+- CSS object-fit, object-position support and handling for IE 11 (It is 2019, and next year we'll be in the roaring 20s... why do we hurt ourselves like this?)
 - supports React 16.3 and above
 
 This component first attempts to load your intended image. If this fails, it will attempt to render a fallback image if provided. Should the fallback image fail (or is not defined) as well, the component will simply render nothing at all and saves you from a broken image icon floating around on your view. That's the gist of it. Also note that, the image will only appear once it is fully loaded so you may want to add a placeholder (which you can pass in as props, see below for info).
