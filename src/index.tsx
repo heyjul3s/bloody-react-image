@@ -7,18 +7,16 @@ export type ImgProps = {
   ariaLabelledBy?: string;
   ariaDescribedBy?: string;
   className?: string;
-  crossOrigin: CrossOriginType;
+  crossOrigin?: CrossOriginType;
   decode?: boolean;
   decoding?: DecodingType;
   fallbackImageUrl?: string;
-  fit?: FitType;
+  fit?: string;
   ImagePlaceholder?: React.ElementType<ImagePlaceholderProps>;
   onload?: (imageState: PropsOnloadArg) => void;
   onerror?: (imageState: PropsOnloadArg) => void;
-  onErrorImage: (event: React.SyntheticEvent) => void;
-  onLoadImage: (event: React.SyntheticEvent) => void;
   position?: string;
-  role: string;
+  role?: string;
   sizes?: string;
   style?: React.CSSProperties;
   src: string;
@@ -38,9 +36,7 @@ export type ImagePlaceholderProps = {
   isImgError: Error | string | undefined;
 };
 
-export type FitType = 'contain' | 'cover';
-
-export type CrossOriginType = 'anonymous' | 'use-credentials' | undefined;
+export type CrossOriginType = 'anonymous' | 'use-credentials';
 
 export type DecodingType = 'async' | 'sync' | 'auto';
 
@@ -52,23 +48,23 @@ export type ImageDimensions = {
 export type PropsOnloadArg = ImgState & ImageDimensions;
 
 export class Img extends React.Component<ImgProps, ImgState> {
-  state = {
+  state: ImgState = {
     imgSrc: '',
     isLoading: false,
     isLoaded: false,
     error: void 0,
   };
 
-  get supportsObjectFit() {
+  get supportsObjectFit(): boolean {
     return (
-      !!window.CSS &&
+      !!(window as any).CSS &&
       !!CSS.supports &&
       !!CSS.supports('object-fit', 'cover') &&
       !!CSS.supports('object-position', '0 0')
     );
   }
 
-  get isLoadedImage() {
+  get isLoadedImage(): boolean {
     /* istanbul ignore next */
     const { imgSrc, isLoaded, isLoading, error }: ImgState = this.state;
     return !!imgSrc && isLoaded && !isLoading && !error;
@@ -82,7 +78,7 @@ export class Img extends React.Component<ImgProps, ImgState> {
       position = '50% 50%',
     }: ImgProps = this.props;
 
-    const { objectFit, objectPosition, ...styles } = style;
+    const { objectFit, objectPosition, ...styles }: React.CSSProperties = style;
 
     return this.supportsObjectFit
       ? {
@@ -93,7 +89,7 @@ export class Img extends React.Component<ImgProps, ImgState> {
       : { ...styles };
   }
 
-  get backgroundImageStyles() {
+  get backgroundImageStyles(): React.CSSProperties {
     /* istanbul ignore next */
     const { fit = 'contain', position = '50% 50%', style = {} } = this.props;
     const { imgSrc } = this.state;
@@ -188,7 +184,7 @@ export class Img extends React.Component<ImgProps, ImgState> {
     if (!this.state.error && !!this.props.fallbackImageUrl) {
       this.setState(
         () => ({
-          imgSrc: this.props.fallbackImageUrl || '',
+          imgSrc: this.props.fallbackImageUrl,
           isLoading: true,
           isLoaded: false,
           error: errorMsg,
@@ -249,8 +245,6 @@ export class Img extends React.Component<ImgProps, ImgState> {
       ariaLabel,
       ariaLabelledBy,
       ariaDescribedBy,
-      onErrorImage,
-      onLoadImage,
       ImagePlaceholder,
       role = 'img',
     } = this.props;
@@ -277,12 +271,10 @@ export class Img extends React.Component<ImgProps, ImgState> {
           decoding={decoding}
           srcSet={this.imageSrcset}
           sizes={this.imageSizes}
-          onError={onErrorImage}
-          onLoad={onLoadImage}
           aria-label={ariaLabel || alt}
           aria-labelledby={ariaLabelledBy}
           aria-describedby={ariaDescribedBy}
-          style={this.imageStyles}
+          style={this.imageStyles as React.CSSProperties}
         />
       );
     }
