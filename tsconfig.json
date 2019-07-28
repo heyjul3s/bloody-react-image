@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react",
+    "module": "es2015",
+    "moduleResolution": "node",
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "strictNullChecks": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "target": "es2017"
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    ".git",
+    "coverage",
+    "lib",
+    "dist",
+    "jest",
+    "node_modules",
+    "webpack",
+    "**/*.stories.ts",
+    "**/*.stories.tsx"
+  ]
+}

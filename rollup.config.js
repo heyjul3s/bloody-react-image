@@ -1,20 +1,16 @@
-import babel from 'rollup-plugin-babel';
+import typescript from 'rollup-plugin-typescript2';
 import { uglify } from 'rollup-plugin-uglify';
 
 const config = {
-  input: 'src/index.js',
+  input: 'src/index.tsx',
   output: {
     file: 'lib/index.js',
     format: 'esm',
   },
-  external: ['prop-types', 'react'],
+  external: ['react'],
   plugins: [
-    babel({
-      babelrc: false,
-      runtimeHelpers: true,
-      exclude: 'node_modules',
-      presets: ['@babel/preset-env', '@babel/preset-react'],
-      plugins: ['@babel/proposal-class-properties', '@babel/transform-runtime'],
+    typescript({
+      typescript: require('typescript'),
     }),
   ],
 };
