@@ -48,6 +48,8 @@ export type ImageDimensions = {
 export type PropsOnloadArg = ImgState & ImageDimensions;
 
 export class Img extends React.Component<ImgProps, ImgState> {
+  image: HTMLImageElement;
+
   state: ImgState = {
     imgSrc: '',
     isLoading: false,
@@ -64,10 +66,10 @@ export class Img extends React.Component<ImgProps, ImgState> {
     );
   }
 
-  get isLoadedImage(): boolean {
+  get isLoadImage(): boolean {
     /* istanbul ignore next */
-    const { imgSrc, isLoaded, isLoading, error }: ImgState = this.state;
-    return !!imgSrc && isLoaded && !isLoading && !error;
+    const { imgSrc, error }: ImgState = this.state;
+    return !!imgSrc && !error;
   }
 
   get imageStyles() {
@@ -82,9 +84,9 @@ export class Img extends React.Component<ImgProps, ImgState> {
 
     return this.supportsObjectFit
       ? {
-          ...styles,
           objectFit: fit,
           objectPosition: position,
+          ...styles,
         }
       : { ...styles };
   }
@@ -139,39 +141,38 @@ export class Img extends React.Component<ImgProps, ImgState> {
     );
   }
 
-  createNewImage(imgSrc: string): HTMLImageElement {
-    let tempImage = new Image();
-    tempImage.src = imgSrc;
-    return tempImage;
-  }
+  createNewImage = (imgSrc: string) => {
+    this.image = new Image();
+    this.image.src = imgSrc;
+  };
 
   loadTempImage() {
-    const tempImage = this.createNewImage(this.state.imgSrc);
-    this.addOnLoadAndOnErrorHandlersToImage(tempImage);
+    this.createNewImage(this.state.imgSrc);
+    this.addOnLoadAndOnErrorHandlersToImage();
   }
 
-  addOnLoadAndOnErrorHandlersToImage = (tempImage: HTMLImageElement) => {
-    if (!tempImage) {
+  addOnLoadAndOnErrorHandlersToImage = () => {
+    if (!this.image) {
       this.onImageError(new Error('Invalid image.'));
       return;
     }
 
-    if (this.props.decode && !!tempImage.decode) {
-      tempImage.decode().then(this.onImageLoad(tempImage), this.onImageError);
+    if (this.props.decode && !!this.image.decode) {
+      this.image.decode().then(this.onImageLoad, this.onImageError);
     } else {
-      tempImage.onload = this.onImageLoad(tempImage);
-      tempImage.onerror = this.onImageError;
+      this.image.onload = this.onImageLoad;
+      this.image.onerror = this.onImageError;
     }
   };
 
-  onImageLoad = (tempImage: HTMLImageElement) => () => {
+  onImageLoad = () => {
     this.setState(
       () => ({
         isLoading: false,
         isLoaded: true,
         error: void 0,
       }),
-      this.invokePropsOnload(tempImage)
+      this.invokePropsOnload
     );
   };
 
@@ -206,24 +207,22 @@ export class Img extends React.Component<ImgProps, ImgState> {
     this.onImageError = null;
   };
 
-  invokePropsOnload = (tempImage: HTMLImageElement) => () => {
+  invokePropsOnload = () => {
     /* istanbul ignore next */
     if (!!this.props.onload) {
       this.props.onload({
         ...this.state,
-        ...this.getLoadedTempImageDimensions(tempImage),
+        ...this.getLoadedTempImageDimensions(),
       });
     }
   };
 
-  getLoadedTempImageDimensions(tempImage: HTMLImageElement): ImageDimensions {
-    return !!tempImage
-      ? {
-          imageWidth: tempImage.width,
-          imageHeight: tempImage.height,
-        }
-      : { imageWidth: void 0, imageHeight: void 0 };
-  }
+  getLoadedTempImageDimensions = (): ImageDimensions => {
+    return {
+      imageWidth: this.image.width,
+      imageHeight: this.image.height,
+    };
+  };
 
   invokePropsOnError = () => {
     /* istanbul ignore next */
@@ -251,49 +250,49 @@ export class Img extends React.Component<ImgProps, ImgState> {
 
     const { imgSrc, isLoading, isLoaded, error } = this.state;
 
-    if (!this.state.isLoaded && this.state.isLoading && !!ImagePlaceholder) {
-      return (
-        <ImagePlaceholder
-          isImgLoading={isLoading}
-          isImgLoaded={isLoaded}
-          isImgError={error}
-        />
-      );
+    if (!isLoaded && !isLoading && !!error) {
+      return null;
     }
 
-    if (this.isLoadedImage && !this.props.children) {
-      return (
-        <img
-          className={className}
-          src={imgSrc}
-          alt={alt}
-          crossOrigin={crossOrigin}
-          decoding={decoding}
-          srcSet={this.imageSrcset}
-          sizes={this.imageSizes}
-          aria-label={ariaLabel || alt}
-          aria-labelledby={ariaLabelledBy}
-          aria-describedby={ariaDescribedBy}
-          style={this.imageStyles as React.CSSProperties}
-        />
-      );
-    }
+    return (
+      <React.Fragment>
+        {!!ImagePlaceholder && (
+          <ImagePlaceholder
+            isImgLoading={isLoading}
+            isImgLoaded={isLoaded}
+            isImgError={error}
+          />
+        )}
 
-    if (this.isLoadedImage && this.props.children) {
-      return (
-        <div
-          className={className}
-          role={role}
-          aria-label={ariaLabel || alt}
-          aria-describedby={ariaDescribedBy}
-          aria-labelledby={ariaLabelledBy}
-          style={this.backgroundImageStyles}
-        >
-          {this.props.children}
-        </div>
-      );
-    }
+        {this.isLoadImage && !this.props.children && (
+          <img
+            className={className}
+            src={imgSrc}
+            alt={alt}
+            crossOrigin={crossOrigin}
+            decoding={decoding}
+            srcSet={this.imageSrcset}
+            sizes={this.imageSizes}
+            aria-label={ariaLabel || alt}
+            aria-labelledby={ariaLabelledBy}
+            aria-describedby={ariaDescribedBy}
+            style={this.imageStyles as React.CSSProperties}
+          />
+        )}
 
-    return null;
+        {this.isLoadImage && this.props.children && (
+          <div
+            className={className}
+            role={role}
+            aria-label={ariaLabel || alt}
+            aria-describedby={ariaDescribedBy}
+            aria-labelledby={ariaLabelledBy}
+            style={this.backgroundImageStyles}
+          >
+            {this.props.children}
+          </div>
+        )}
+      </React.Fragment>
+    );
   }
 }

@@ -9,7 +9,7 @@ module.exports = ({ config }) => {
 
   config.module.rules.push({
     test: /\.(ts|tsx)$/,
-    include: [/stories/, /src/],
+    include: [/stories/, /src/, /demo/],
     exclude: /node_modules/,
     loaders: [
       'babel-loader',

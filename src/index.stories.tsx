@@ -4,6 +4,7 @@ import { withKnobs, text } from '@storybook/addon-knobs';
 import { withA11y } from '@storybook/addon-a11y';
 import { withInfo } from '@storybook/addon-info';
 import { Img } from './index';
+import { Loading } from '../demo/demo.loader';
 
 storiesOf('Img', module)
   .addDecorator(withA11y)
@@ -39,14 +40,15 @@ storiesOf('Img', module)
 
     return <Img src={imgUrl} alt={altText} srcset={srcSet} sizes={sizes} />;
   })
-  .add('with Placeholder component', () => {
-    const imgUrl = 'https://source.unsplash.com/random/800x600';
+  .add('with image as Placeholder component', () => {
+    const imgUrl = 'https://source.unsplash.com/random/400x400';
     const altText = text('Alt Text', 'Lorem Ipsum Dolor Sit Amet');
-    const placeholder = () => {
-      return <h1 className="image-placeholder">... Loading </h1>;
-    };
 
-    return <Img src={imgUrl} alt={altText} ImagePlaceholder={placeholder} />;
+    return (
+      <div className="figure" style={{ position: 'relative' }}>
+        <Img src={imgUrl} alt={altText} ImagePlaceholder={Loading} />
+      </div>
+    );
   })
   .add('with Div Background Image', () => {
     const imgUrl = 'https://source.unsplash.com/random';
@@ -82,6 +84,21 @@ storiesOf('Img', module)
         fit="cover"
         position="50% 50%"
         onload={args => {
+          console.log(args);
+        }}
+      />
+    );
+  })
+  .add('with onerror as props', () => {
+    const altText = text('Alt Text', 'Lorem Ipsum Dolor Sit Amet');
+
+    return (
+      <Img
+        src="hello"
+        alt={altText}
+        fit="cover"
+        position="50% 50%"
+        onerror={args => {
           console.log(args);
         }}
       />
