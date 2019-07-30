@@ -39,8 +39,8 @@ Below are a list of available props you can pass to the component while image at
 | ImagePlaceholder   | React Component | undefined     | None                                                                    | Defines a component that will be shown when the image is loading                    |
 | decode             | boolean         | undefined     | None                                                                    | Specify whether to use image.decode for the image                                   |
 | progressiveLoading | boolean         | false         | None                                                                    | Specify whether to load the image progressively                                     |
-| onErrorImage       | function        | undefined     | { imgSrc: string, isLoaded: boolean, isLoading: boolean, error: Error } | Defines an error handler for if it occurs during image load. Returns a state object |
-| onLoadImage        | function        | undefined     | { imgSrc: string, isLoaded: boolean, isLoading: boolean, error: Error } | Defines an onload handler when image loads. Returns a state object                  |
+| onerror            | function        | undefined     | { imgSrc: string, isLoaded: boolean, isLoading: boolean, error: Error } | Defines an error handler for if it occurs during image load. Returns a state object |
+| onload             | function        | undefined     | { imgSrc: string, isLoaded: boolean, isLoading: boolean, error: Error } | Defines an onload handler when image loads. Returns a state object                  |
 
 ## Style Defaults
 
@@ -90,7 +90,7 @@ import { Img } from 'bloody-react-image';
 
 ### Placeholders
 
-You can stick another component as a placeholder while the image is loading. Note that there are 3 props that will be available to you:
+A placeholder component can be included for while the image is loading. Note that there are 3 props that will be available to you:
 
 - **isImgLoading: boolean**
 - **isImgLoaded: boolean**
@@ -108,6 +108,8 @@ import { FunnyImagePlaceholder } from './FunnyImagePlaceholer';
 
 <Img src="someurl" alt="some text" ImagePlaceholder={FunnyImagePlaceholder} />
 ```
+
+Note that for a more ideal transition animation effect, it will depend on how you create your placeholder component.
 
 ## Other Usage
 

@@ -88,18 +88,19 @@ describe('React Image Engine', () => {
         isLoading: true,
       }));
 
-      expect(wrapper.html()).toEqual(`<div>Image Placeholder</div>`);
+      expect(wrapper.html()).toEqual(
+        `<div>Image Placeholder</div><img src=\"https://source.unsplash.com/random\" alt=\"\" aria-label=\"\">`
+      );
     });
 
     test('renders an image when state.loaded is TRUE and when there are NO CHILDREN ', () => {
       wrapper.setState(() => ({
-        isLoaded: true,
-        isLoading: false,
+        imgSrc: 'https://source.unsplash.com/random',
       }));
 
       expect(instance.props.children).toBeUndefined;
       expect(wrapper.html()).toEqual(
-        `<img src="https://source.unsplash.com/random" alt="" aria-label="">`
+        `<div>Image Placeholder</div><img src="https://source.unsplash.com/random" alt="" aria-label="">`
       );
     });
 
@@ -119,7 +120,7 @@ describe('React Image Engine', () => {
 
       expect(instance.props.children).toBeDefined();
       expect(wrapper.html()).toEqual(
-        `<div role="img" aria-label="" style="display: block; background-image: url(https://source.unsplash.com/random); background-position: 50% 50%; background-repeat: no-repeat; background-size: contain;"><h1>Hello World</h1></div>`
+        `<div>Image Placeholder</div><div role="img" aria-label="" style="display: block; background-image: url(https://source.unsplash.com/random); background-position: 50% 50%; background-repeat: no-repeat; background-size: contain;"><h1>Hello World</h1></div>`
       );
     });
 
@@ -127,8 +128,10 @@ describe('React Image Engine', () => {
       wrapper.setState(() => ({
         isLoaded: false,
         isLoading: false,
-        ImagePlaceholder: void 0 as any,
+        error: new Error('Could not load image'),
       }));
+
+      wrapper.update();
 
       expect(wrapper.isEmptyRender()).toBe(true);
       expect(wrapper.html()).toEqual(null);
@@ -144,7 +147,7 @@ describe('React Image Engine', () => {
 
     spy(imgSrc);
 
-    expect(spy).toReturnWith(mockImage);
+    expect(instance.image).toEqual(mockImage);
     expect(mockImage.src).toBeDefined();
   });
 
@@ -161,9 +164,9 @@ describe('React Image Engine', () => {
     const LOAD_SUCCESS_SRC = 'LOAD_SUCCESS_SRC';
 
     test('runs image decode if opted in and resolves successfully', () => {
-      const img = new Image();
-      img.src = LOAD_SUCCESS_SRC;
-      img.decode = () => Promise.resolve();
+      instance.image = new Image();
+      instance.image.src = LOAD_SUCCESS_SRC;
+      instance.image.decode = () => Promise.resolve();
 
       wrapper.setProps({
         src: LOAD_SUCCESS_SRC,
@@ -175,9 +178,9 @@ describe('React Image Engine', () => {
         'addOnLoadAndOnErrorHandlersToImage'
       ) as any;
 
-      spy(img);
+      spy();
 
-      img.decode().then(() => {
+      instance.image.decode().then(() => {
         setTimeout(() => {
           expect(wrapper.html()).toEqual(`<img src={${LOAD_SUCCESS_SRC}} />`);
           expect((wrapper.instance() as Img).onImageLoad).toHaveBeenCalledTimes(
@@ -253,7 +256,9 @@ describe('React Image Engine', () => {
     const spyOnImageError = jest.spyOn(instance, 'onImageError');
     const expectedErrorMsg = new Error('Invalid image.');
 
-    spy(void 0);
+    instance.image = void 0;
+
+    spy();
 
     expect(spyOnImageError).toBeCalledWith(expectedErrorMsg);
     expect(spyOnImageError).toBeCalledTimes(1);
@@ -269,7 +274,9 @@ describe('React Image Engine', () => {
       'addOnLoadAndOnErrorHandlersToImage'
     ) as any;
 
-    spy(void 0);
+    instance.image = void 0;
+
+    spy();
 
     expect(wrapper.state().isLoaded).toEqual(false);
     expect(wrapper.state().isLoaded).toEqual(false);
@@ -291,7 +298,7 @@ describe('React Image Engine', () => {
     const testImage = new Image();
     testImage.src = 'https://source.unsplash.com/random';
 
-    spy(testImage)();
+    spy();
 
     expect(wrapper.state()).toEqual({
       imgSrc: 'https://source.unsplash.com/random',
@@ -419,8 +426,8 @@ describe('React Image Engine', () => {
     spy();
 
     expect(spy).toReturnWith({
-      imageWidth: void 0,
-      imageHeight: void 0,
+      imageWidth: 0,
+      imageHeight: 0,
     });
   });
 
@@ -430,11 +437,15 @@ describe('React Image Engine', () => {
     mockTempImage.width = 100;
     mockTempImage.height = 100;
 
-    spy(mockTempImage);
+    instance.image = new Image();
+    instance.image.width = 100;
+    instance.image.height = 100;
+
+    spy();
 
     expect(spy).toReturnWith({
-      imageWidth: mockTempImage.width,
-      imageHeight: mockTempImage.height,
+      imageWidth: 100,
+      imageHeight: 100,
     });
   });
 
@@ -453,18 +464,18 @@ describe('React Image Engine', () => {
     mockSupports.mockReset();
   });
 
-  test('isLoadedImage - when state.isLoading or has error', () => {
-    expect(instance.isLoadedImage).toEqual(false);
+  test('isLoadImage - when state.imgSrc or has error', () => {
+    expect(instance.isLoadImage).toEqual(true);
   });
 
-  test('isLoadedImage - when state.isLoaded and not state.isLoading and no error', () => {
+  test('isLoadImage - when state.isLoaded and not state.isLoading and no error', () => {
     wrapper.setState({
       isLoaded: true,
       isLoading: false,
       error: void 0,
     });
 
-    expect(instance.isLoadedImage).toEqual(true);
+    expect(instance.isLoadImage).toEqual(true);
   });
 
   test('imageStyles - when NOT supportsObjectFit', () => {
