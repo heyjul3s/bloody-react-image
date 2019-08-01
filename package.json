@@ -1,14 +1,16 @@
 {
   "name": "bloody-react-image",
-  "version": "0.1.0",
+  "version": "0.0.0-development",
   "description": "An ReactJS image component with options for fallback imagery, placeholder when loading and fallback for IE with object-fit usage.",
   "main": "lib/index.js",
   "scripts": {
+    "commit": "npx git-cz",
     "build": "rollup -c",
     "start": "start-storybook -p 5555",
     "test": "jest",
     "test-watch": "jest --watch",
-    "test-output": "jest --json --outputFile=.jest-test-results.json || true"
+    "test-output": "jest --json --outputFile=.jest-test-results.json || true",
+    "semantic-release": "semantic-release"
   },
   "files": [
     "lib"
@@ -49,7 +51,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "prepare-commit-msg": "exec < /dev/tty && git cz --hook"
     }
   },
   "jest": {
@@ -97,6 +100,7 @@
     "awesome-typescript-loader": "^5.2.1",
     "babel-jest": "^24.8.0",
     "babel-loader": "^8.0.6",
+    "cz-conventional-changelog": "3.0.2",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
     "enzyme-to-json": "^3.3.5",
@@ -109,9 +113,19 @@
     "rollup": "^1.17.0",
     "rollup-plugin-typescript2": "^0.22.1",
     "rollup-plugin-uglify": "^6.0.2",
+    "semantic-release": "^15.13.19",
     "ts-jest": "^24.0.2",
     "tslib": "^1.10.0",
     "typescript": "^3.5.3"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heyjul3s/bloody-react-image.git"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
 }
