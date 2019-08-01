@@ -1,14 +1,16 @@
 {
   "name": "bloody-react-image",
-  "version": "0.1.0",
+  "version": "0.0.0-development",
   "description": "An ReactJS image component with options for fallback imagery, placeholder when loading and fallback for IE with object-fit usage.",
   "main": "lib/index.js",
   "scripts": {
+    "commit": "npx git-cz",
     "build": "rollup -c",
     "start": "start-storybook -p 5555",
     "test": "jest",
     "test-watch": "jest --watch",
-    "test-output": "jest --json --outputFile=.jest-test-results.json || true"
+    "test-output": "jest --json --outputFile=.jest-test-results.json || true",
+    "semantic-release": "semantic-release"
   },
   "files": [
     "lib"
@@ -31,45 +33,12 @@
     "preloader",
     "placeholder",
     "loader",
-    "engine",
     "plus",
     "image",
     "img"
   ],
   "author": "Julian Low <julian.cy.low@gmail.com>",
   "license": "MIT",
-  "babel": {
-    "presets": [
-      "@babel/preset-env",
-      "@babel/preset-react"
-    ],
-    "plugins": [
-      "@babel/proposal-class-properties",
-      "@babel/transform-runtime"
-    ]
-  },
-  "eslintConfig": {
-    "env": {
-      "jest": true
-    },
-    "parser": "babel-eslint",
-    "parserOptions": {
-      "ecmaVersion": 7,
-      "sourceType": "module",
-      "ecmaFeatures": {
-        "jsx": true
-      }
-    },
-    "rules": {
-      "indent": [
-        "error",
-        2,
-        {
-          "MemberExpression": "off"
-        }
-      ]
-    }
-  },
   "prettier": {
     "singleQuote": true,
     "trailingComma": "es5"
@@ -82,67 +51,81 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "prepare-commit-msg": "exec < /dev/tty && git cz --hook"
     }
   },
   "jest": {
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "src/**/*.{js,jsx}",
-      "!.storybook/*",
-      "!src/**/*.stories.{js,jsx}"
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!<rootDir>/.storybook/*",
+      "!src/**/*.stories.{js,jsx,ts,tsx}"
     ],
     "moduleDirectories": [
       "node_modules",
       "bower_components"
     ],
     "moduleFileExtensions": [
+      "ts",
+      "tsx",
       "js",
       "jsx",
       "json"
     ],
     "transform": {
-      "^.+\\.(js|jsx|mjs)$": "babel-jest"
+      "^.+\\.(js|jsx|mjs)$": "babel-jest",
+      "^.+\\.(tsx|ts)?$": "ts-jest"
     },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(js|jsx)$",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/lib/"
+    ],
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(js|jsx|ts|tsx)$",
     "verbose": false
   },
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.5",
-    "@babel/plugin-proposal-class-properties": "^7.4.4",
-    "@babel/plugin-transform-runtime": "^7.4.4",
-    "@babel/preset-env": "^7.4.5",
-    "@babel/preset-react": "^7.0.0",
-    "@babel/runtime": "^7.4.5",
-    "@storybook/addon-a11y": "^5.1.8",
-    "@storybook/addon-actions": "^5.1.8",
-    "@storybook/addon-console": "^1.1.0",
-    "@storybook/addon-jest": "^5.1.8",
-    "@storybook/addon-knobs": "^5.1.8",
-    "@storybook/addon-storyshots": "^5.1.8",
-    "@storybook/addon-storysource": "^5.1.8",
-    "@storybook/addon-viewport": "^5.1.8",
-    "@storybook/react": "^5.1.8",
-    "babel-eslint": "^10.0.2",
+    "@storybook/addon-a11y": "^5.1.10",
+    "@storybook/addon-info": "^5.1.10",
+    "@storybook/addon-knobs": "^5.1.10",
+    "@storybook/addon-storysource": "^5.1.10",
+    "@storybook/react": "^5.1.10",
+    "@types/enzyme": "^3.10.3",
+    "@types/enzyme-adapter-react-16": "^1.0.5",
+    "@types/jest": "^24.0.16",
+    "@types/react": "^16.8.24",
+    "@types/storybook__addon-info": "^4.1.2",
+    "@types/storybook__addon-knobs": "^5.0.3",
+    "@types/storybook__react": "^4.0.2",
+    "awesome-typescript-loader": "^5.2.1",
     "babel-jest": "^24.8.0",
     "babel-loader": "^8.0.6",
+    "cz-conventional-changelog": "3.0.2",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
     "enzyme-to-json": "^3.3.5",
     "jest": "^24.8.0",
     "jest-cli": "^24.8.0",
-    "lint-staged": "^8.2.1",
-    "prop-types": "^15.7.2",
+    "lint-staged": "^9.2.1",
     "react": "^16.8.6",
-    "rollup": "^1.15.6",
-    "rollup-plugin-babel": "^4.3.2",
-    "rollup-plugin-commonjs": "^10.0.0",
-    "rollup-plugin-eslint": "^6.0.0",
-    "rollup-plugin-node-globals": "^1.4.0",
+    "react-docgen-typescript-loader": "^3.1.0",
+    "react-docgen-typescript-webpack-plugin": "^1.1.0",
+    "rollup": "^1.17.0",
+    "rollup-plugin-typescript2": "^0.22.1",
     "rollup-plugin-uglify": "^6.0.2",
-    "storybook-addon-jsx": "^7.1.2",
-    "storybook-readme": "^5.0.3"
+    "semantic-release": "^15.13.19",
+    "ts-jest": "^24.0.2",
+    "tslib": "^1.10.0",
+    "typescript": "^3.5.3"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heyjul3s/bloody-react-image.git"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
 }

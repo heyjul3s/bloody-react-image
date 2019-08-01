@@ -1,19 +1,20 @@
-import React from 'react';
-import { shallow, mount } from 'enzyme';
-import Enzyme from 'enzyme';
+import * as React from 'react';
+import { mount } from 'enzyme';
+import * as Enzyme from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import { Img } from './index.js';
+import { Img, ImgState, ImgProps } from './index';
 
 Enzyme.configure({
   adapter: new Adapter(),
 });
 
 describe('React Image Engine', () => {
-  let wrapper, instance;
+  let wrapper: Enzyme.ReactWrapper<ImgProps, ImgState, Img>;
+  let instance: Img;
 
-  const IMG_URL = 'https://source.unsplash.com/random';
+  const IMG_URL: string = 'https://source.unsplash.com/random';
 
-  const props = {
+  const props: ImgProps = {
     className: void 0,
     src: 'https://source.unsplash.com/random',
     alt: '',
@@ -23,8 +24,6 @@ describe('React Image Engine', () => {
     sizes: '',
     role: void 0,
     ariaLabel: void 0,
-    onErrorImage: void 0,
-    onLoadImage: void 0,
     onload: jest.fn(),
     onerror: jest.fn(),
     ImagePlaceholder: () => <div>Image Placeholder</div>,
@@ -34,7 +33,7 @@ describe('React Image Engine', () => {
 
   beforeEach(() => {
     wrapper = mount(<Img {...props} />);
-    instance = wrapper.instance();
+    instance = wrapper.instance() as Img;
   });
 
   afterEach(() => {
@@ -43,7 +42,7 @@ describe('React Image Engine', () => {
 
   describe('Component Did Mount', () => {
     test('initImageLoading - when image is state.loading is FALSE AND state.loaded is TRUE', () => {
-      const spy = jest.spyOn(instance, 'initImageLoading');
+      const spy: jest.SpyInstance = jest.spyOn(instance, 'initImageLoading');
 
       instance.setState({
         isLoaded: true,
@@ -56,7 +55,7 @@ describe('React Image Engine', () => {
     });
 
     test('initImageLoading - when image is state.loading is TRUE AND state.loaded is FALSE', () => {
-      const spy = jest.spyOn(instance, 'initImageLoading');
+      const spy: jest.SpyInstance = jest.spyOn(instance, 'initImageLoading');
 
       instance.setState({
         isLoaded: false,
@@ -69,7 +68,7 @@ describe('React Image Engine', () => {
     });
 
     test('initImageLoading - when image is state.loading is FALSE AND state.loaded is FALSE', () => {
-      const spy = jest.spyOn(instance, 'initImageLoading');
+      const spy: jest.SpyInstance = jest.spyOn(instance, 'initImageLoading');
 
       instance.setState({
         isLoaded: false,
@@ -89,18 +88,19 @@ describe('React Image Engine', () => {
         isLoading: true,
       }));
 
-      expect(wrapper.html()).toEqual(`<div>Image Placeholder</div>`);
+      expect(wrapper.html()).toEqual(
+        `<div>Image Placeholder</div><img src=\"https://source.unsplash.com/random\" alt=\"\" aria-label=\"\">`
+      );
     });
 
     test('renders an image when state.loaded is TRUE and when there are NO CHILDREN ', () => {
       wrapper.setState(() => ({
-        isLoaded: true,
-        isLoading: false,
+        imgSrc: 'https://source.unsplash.com/random',
       }));
 
       expect(instance.props.children).toBeUndefined;
       expect(wrapper.html()).toEqual(
-        `<img src="https://source.unsplash.com/random" alt="" aria-label="">`
+        `<div>Image Placeholder</div><img src="https://source.unsplash.com/random" alt="" aria-label="">`
       );
     });
 
@@ -111,7 +111,7 @@ describe('React Image Engine', () => {
         </Img>
       );
 
-      instance = wrapper.instance();
+      instance = wrapper.instance() as Img;
 
       wrapper.setState(() => ({
         isLoaded: true,
@@ -120,7 +120,7 @@ describe('React Image Engine', () => {
 
       expect(instance.props.children).toBeDefined();
       expect(wrapper.html()).toEqual(
-        `<div role="img" aria-label="" style="display: block; background-image: url(https://source.unsplash.com/random); background-position: 50% 50%; background-repeat: no-repeat; background-size: contain;"><h1>Hello World</h1></div>`
+        `<div>Image Placeholder</div><div role="img" aria-label="" style="display: block; background-image: url(https://source.unsplash.com/random); background-position: 50% 50%; background-repeat: no-repeat; background-size: contain;"><h1>Hello World</h1></div>`
       );
     });
 
@@ -128,8 +128,10 @@ describe('React Image Engine', () => {
       wrapper.setState(() => ({
         isLoaded: false,
         isLoading: false,
-        ImagePlaceholder: void 0,
+        error: new Error('Could not load image'),
       }));
+
+      wrapper.update();
 
       expect(wrapper.isEmptyRender()).toBe(true);
       expect(wrapper.html()).toEqual(null);
@@ -137,7 +139,7 @@ describe('React Image Engine', () => {
   });
 
   test('createNewImage - it creates and returns a HTML image element with src defined', () => {
-    const spy = jest.spyOn(instance, 'createNewImage');
+    const spy = jest.spyOn(instance, 'createNewImage') as any;
 
     const mockImage = new Image();
     const imgSrc = 'https://source.unsplash.com/random';
@@ -145,40 +147,45 @@ describe('React Image Engine', () => {
 
     spy(imgSrc);
 
-    expect(spy).toReturnWith(mockImage);
+    expect(instance.image).toEqual(mockImage);
     expect(mockImage.src).toBeDefined();
   });
 
   describe('addOnLoadAndOnErrorHandlersToImage', () => {
-    let wrapper;
-    let instance;
+    let wrapper: Enzyme.ReactWrapper;
+    let instance: Img;
 
     beforeEach(() => {
-      wrapper = shallow(<Img {...props} />);
-      instance = wrapper.instance();
+      wrapper = mount(<Img {...props} />);
+      instance = wrapper.instance() as Img;
     });
 
     const LOAD_FAILURE_SRC = 'LOAD_FAILURE_SRC';
     const LOAD_SUCCESS_SRC = 'LOAD_SUCCESS_SRC';
 
     test('runs image decode if opted in and resolves successfully', () => {
-      const img = new Image();
-      img.src = LOAD_SUCCESS_SRC;
-      img.decode = () => Promise.resolve();
+      instance.image = new Image();
+      instance.image.src = LOAD_SUCCESS_SRC;
+      instance.image.decode = () => Promise.resolve();
 
       wrapper.setProps({
         src: LOAD_SUCCESS_SRC,
         decode: true,
       });
 
-      const spy = jest.spyOn(instance, 'addOnLoadAndOnErrorHandlersToImage');
+      const spy = jest.spyOn(
+        instance,
+        'addOnLoadAndOnErrorHandlersToImage'
+      ) as any;
 
-      spy(img);
+      spy();
 
-      img.decode().then(() => {
+      instance.image.decode().then(() => {
         setTimeout(() => {
           expect(wrapper.html()).toEqual(`<img src={${LOAD_SUCCESS_SRC}} />`);
-          expect(wrapper.instance().onImageLoad.toHaveBeenCalledTimes(1));
+          expect((wrapper.instance() as Img).onImageLoad).toHaveBeenCalledTimes(
+            1
+          );
         }, 100);
       });
     });
@@ -197,7 +204,9 @@ describe('React Image Engine', () => {
         wrapper.update();
         setTimeout(() => {
           expect(wrapper.html()).toEqual(`<img src={${LOAD_FAILURE_SRC}} />`);
-          expect(wrapper.instance().onImageError.toHaveBeenCalledTimes(1));
+          expect(
+            (wrapper.instance() as Img).onImageError
+          ).toHaveBeenCalledTimes(1);
         }, 100);
       });
     });
@@ -207,9 +216,12 @@ describe('React Image Engine', () => {
       img.src = LOAD_SUCCESS_SRC;
       img.decode = () => Promise.resolve();
 
-      wrapper = shallow(<Img {...props} decode={false} />);
+      wrapper = mount(<Img {...props} decode={false} />);
 
-      const spy = jest.spyOn(instance, 'addOnLoadAndOnErrorHandlersToImage');
+      const spy = jest.spyOn(
+        instance,
+        'addOnLoadAndOnErrorHandlersToImage'
+      ) as any;
 
       spy(img);
 
@@ -222,9 +234,12 @@ describe('React Image Engine', () => {
       img.src = LOAD_SUCCESS_SRC;
       img.decode = void 0;
 
-      wrapper = shallow(<Img {...props} decode={true} />);
+      wrapper = mount(<Img {...props} decode={true} />);
 
-      const spy = jest.spyOn(instance, 'addOnLoadAndOnErrorHandlersToImage');
+      const spy = jest.spyOn(
+        instance,
+        'addOnLoadAndOnErrorHandlersToImage'
+      ) as any;
 
       spy(img);
 
@@ -234,11 +249,16 @@ describe('React Image Engine', () => {
   });
 
   test('addOnLoadAndOnErrorHandlersToImage - onImageError is called if image arg is falsy', () => {
-    const spy = jest.spyOn(instance, 'addOnLoadAndOnErrorHandlersToImage');
+    const spy = jest.spyOn(
+      instance,
+      'addOnLoadAndOnErrorHandlersToImage'
+    ) as any;
     const spyOnImageError = jest.spyOn(instance, 'onImageError');
     const expectedErrorMsg = new Error('Invalid image.');
 
-    spy(void 0);
+    instance.image = void 0;
+
+    spy();
 
     expect(spyOnImageError).toBeCalledWith(expectedErrorMsg);
     expect(spyOnImageError).toBeCalledTimes(1);
@@ -249,9 +269,14 @@ describe('React Image Engine', () => {
       fallbackImageUrl: IMG_URL,
     });
 
-    const spy = jest.spyOn(instance, 'addOnLoadAndOnErrorHandlersToImage');
+    const spy = jest.spyOn(
+      instance,
+      'addOnLoadAndOnErrorHandlersToImage'
+    ) as any;
 
-    spy(void 0);
+    instance.image = void 0;
+
+    spy();
 
     expect(wrapper.state().isLoaded).toEqual(false);
     expect(wrapper.state().isLoaded).toEqual(false);
@@ -264,13 +289,16 @@ describe('React Image Engine', () => {
   });
 
   test('onImageLoad', () => {
-    const spy = jest.spyOn(instance, 'onImageLoad');
-    const spySetState = jest.spyOn(Img.prototype, 'setState');
-    const spyInvokePropsOnload = jest.spyOn(instance, 'invokePropsOnload');
+    const spy = jest.spyOn(instance, 'onImageLoad') as any;
+    const spySetState = jest.spyOn(Img.prototype, 'setState') as any;
+    const spyInvokePropsOnload = jest.spyOn(
+      instance,
+      'invokePropsOnload'
+    ) as any;
     const testImage = new Image();
     testImage.src = 'https://source.unsplash.com/random';
 
-    spy(testImage)();
+    spy();
 
     expect(wrapper.state()).toEqual({
       imgSrc: 'https://source.unsplash.com/random',
@@ -288,13 +316,13 @@ describe('React Image Engine', () => {
       fallbackImageUrl: IMG_URL,
     });
 
-    const spy = jest.spyOn(instance, 'onImageError');
+    const spy = jest.spyOn(instance, 'onImageError') as any;
     const spySetState = jest.spyOn(Img.prototype, 'setState');
-    const spyLoadTempImage = jest.spyOn(instance, 'loadTempImage');
+    const spyLoadTempImage = jest.spyOn(instance, 'loadTempImage') as any;
     const error = new Error('Image failed to load.');
 
     wrapper.setState(() => ({
-      error: void 0,
+      error: void 0 as any,
     }));
 
     spy(error);
@@ -314,9 +342,12 @@ describe('React Image Engine', () => {
     wrapper.setProps({
       fallbackImageUrl: IMG_URL,
     });
-    const spy = jest.spyOn(instance, 'onImageError');
+    const spy = jest.spyOn(instance, 'onImageError') as any;
     const spySetState = jest.spyOn(Img.prototype, 'setState');
-    const spyInvokePropsOnError = jest.spyOn(instance, 'invokePropsOnError');
+    const spyInvokePropsOnError = jest.spyOn(
+      instance,
+      'invokePropsOnError'
+    ) as any;
     const error = new Error('Image failed to load.');
 
     wrapper.setState(() => ({
@@ -326,7 +357,7 @@ describe('React Image Engine', () => {
     spy(error);
 
     expect(wrapper.state()).toEqual({
-      imgSrc: void 0,
+      imgSrc: '',
       isLoaded: false,
       isLoading: false,
       error: void 0,
@@ -338,14 +369,17 @@ describe('React Image Engine', () => {
   });
 
   test('onImageError - WITHOUT fallback defined', () => {
-    const spy = jest.spyOn(instance, 'onImageError');
+    const spy = jest.spyOn(instance, 'onImageError') as any;
     const spySetState = jest.spyOn(Img.prototype, 'setState');
-    const spyInvokePropsOnError = jest.spyOn(instance, 'invokePropsOnError');
+    const spyInvokePropsOnError = jest.spyOn(
+      instance,
+      'invokePropsOnError'
+    ) as any;
 
     spy();
 
     expect(wrapper.state()).toEqual({
-      imgSrc: void 0,
+      imgSrc: '',
       isLoaded: false,
       isLoading: false,
     });
@@ -354,24 +388,8 @@ describe('React Image Engine', () => {
     expect(spyInvokePropsOnError).toBeCalled();
   });
 
-  test('imageSizingsToString - with ARRAY OF STRINGS', () => {
-    const spy = jest.spyOn(instance, 'imageSizingsToString');
-    const expected = 'elva-fairy-320w.jpg 320w, elva-fairy-480w.jpg 480w';
-
-    spy(['elva-fairy-320w.jpg 320w', 'elva-fairy-480w.jpg 480w']);
-    expect(spy).toReturnWith(expected);
-  });
-
-  test('imageSizingsToString - with STRING', () => {
-    const spy = jest.spyOn(instance, 'imageSizingsToString');
-    const expected = 'elva-fairy-320w.jpg 320w, elva-fairy-480w.jpg 480w';
-
-    spy('elva-fairy-320w.jpg 320w, elva-fairy-480w.jpg 480w');
-    expect(spy).toReturnWith(expected);
-  });
-
   test('props.onload - WITH props.onload defined, invoke props.onload', () => {
-    const spy = jest.spyOn(instance, 'invokePropsOnload');
+    const spy = jest.spyOn(instance, 'invokePropsOnload') as any;
     spy();
 
     expect(instance.props.onload).toBeDefined();
@@ -386,14 +404,14 @@ describe('React Image Engine', () => {
       onload: void 0,
     });
 
-    const spy = jest.spyOn(instance, 'invokePropsOnload');
+    const spy = jest.spyOn(instance, 'invokePropsOnload') as any;
     spy();
 
     expect(instance.props.onload).toBeUndefined();
   });
 
   test('props.onerror - WITH props.onerror defined, invoke props.onerror', () => {
-    const spy = jest.spyOn(instance, 'invokePropsOnError');
+    const spy = jest.spyOn(instance, 'invokePropsOnError') as any;
     spy();
 
     expect(instance.props.onerror).toBeDefined();
@@ -404,26 +422,30 @@ describe('React Image Engine', () => {
   });
 
   test('getLoadedTempImageDimensions - WITHOUT image instance', () => {
-    const spy = jest.spyOn(instance, 'getLoadedTempImageDimensions');
+    const spy = jest.spyOn(instance, 'getLoadedTempImageDimensions') as any;
     spy();
 
     expect(spy).toReturnWith({
-      imageWidth: void 0,
-      imageHeight: void 0,
+      imageWidth: 0,
+      imageHeight: 0,
     });
   });
 
   test('getLoadedTempImageDimensions - WITH image instance', () => {
-    const spy = jest.spyOn(instance, 'getLoadedTempImageDimensions');
+    const spy = jest.spyOn(instance, 'getLoadedTempImageDimensions') as any;
     const mockTempImage = new Image();
     mockTempImage.width = 100;
     mockTempImage.height = 100;
 
-    spy(mockTempImage);
+    instance.image = new Image();
+    instance.image.width = 100;
+    instance.image.height = 100;
+
+    spy();
 
     expect(spy).toReturnWith({
-      imageWidth: mockTempImage.width,
-      imageHeight: mockTempImage.height,
+      imageWidth: 100,
+      imageHeight: 100,
     });
   });
 
@@ -434,7 +456,7 @@ describe('React Image Engine', () => {
   test('supportsObjectFit - WITH window.CSS.supports', () => {
     const mockSupports = jest.fn().mockImplementation(() => true);
 
-    window.CSS = {
+    (window as any).CSS = {
       supports: mockSupports,
     };
 
@@ -442,18 +464,18 @@ describe('React Image Engine', () => {
     mockSupports.mockReset();
   });
 
-  test('isLoadedImage - when state.isLoading or has error', () => {
-    expect(instance.isLoadedImage).toEqual(false);
+  test('isLoadImage - when state.imgSrc or has error', () => {
+    expect(instance.isLoadImage).toEqual(true);
   });
 
-  test('isLoadedImage - when state.isLoaded and not state.isLoading and no error', () => {
+  test('isLoadImage - when state.isLoaded and not state.isLoading and no error', () => {
     wrapper.setState({
       isLoaded: true,
       isLoading: false,
       error: void 0,
     });
 
-    expect(instance.isLoadedImage).toEqual(true);
+    expect(instance.isLoadImage).toEqual(true);
   });
 
   test('imageStyles - when NOT supportsObjectFit', () => {
@@ -463,7 +485,7 @@ describe('React Image Engine', () => {
   test('imageStyles - when supportsObjectFit', () => {
     const mockSupports = jest.fn().mockImplementation(() => true);
 
-    window.CSS = {
+    (window as any).CSS = {
       supports: mockSupports,
     };
 
