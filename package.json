@@ -1,14 +1,16 @@
 {
   "name": "bloody-react-image",
-  "version": "0.1.0",
+  "version": "0.0.0-development",
   "description": "An ReactJS image component with options for fallback imagery, placeholder when loading and fallback for IE with object-fit usage.",
   "main": "lib/index.js",
   "scripts": {
+    "commit": "npx git-cz",
     "build": "rollup -c",
     "start": "start-storybook -p 5555",
     "test": "jest",
     "test-watch": "jest --watch",
-    "test-output": "jest --json --outputFile=.jest-test-results.json || true"
+    "test-output": "jest --json --outputFile=.jest-test-results.json || true",
+    "semantic-release": "semantic-release"
   },
   "files": [
     "lib"
@@ -49,7 +51,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "prepare-commit-msg": "exec < /dev/tty && git cz --hook"
     }
   },
   "jest": {
@@ -82,21 +85,22 @@
     "verbose": false
   },
   "devDependencies": {
-    "@storybook/addon-a11y": "^5.1.9",
-    "@storybook/addon-info": "^5.1.9",
-    "@storybook/addon-knobs": "^5.1.9",
-    "@storybook/addon-storysource": "^5.1.9",
-    "@storybook/react": "^5.1.9",
+    "@storybook/addon-a11y": "^5.1.10",
+    "@storybook/addon-info": "^5.1.10",
+    "@storybook/addon-knobs": "^5.1.10",
+    "@storybook/addon-storysource": "^5.1.10",
+    "@storybook/react": "^5.1.10",
     "@types/enzyme": "^3.10.3",
     "@types/enzyme-adapter-react-16": "^1.0.5",
-    "@types/jest": "^24.0.15",
-    "@types/react": "^16.8.23",
+    "@types/jest": "^24.0.16",
+    "@types/react": "^16.8.24",
     "@types/storybook__addon-info": "^4.1.2",
     "@types/storybook__addon-knobs": "^5.0.3",
     "@types/storybook__react": "^4.0.2",
     "awesome-typescript-loader": "^5.2.1",
     "babel-jest": "^24.8.0",
     "babel-loader": "^8.0.6",
+    "cz-conventional-changelog": "3.0.2",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
     "enzyme-to-json": "^3.3.5",
@@ -109,9 +113,19 @@
     "rollup": "^1.17.0",
     "rollup-plugin-typescript2": "^0.22.1",
     "rollup-plugin-uglify": "^6.0.2",
+    "semantic-release": "^15.13.19",
     "ts-jest": "^24.0.2",
     "tslib": "^1.10.0",
     "typescript": "^3.5.3"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heyjul3s/bloody-react-image.git"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
 }
