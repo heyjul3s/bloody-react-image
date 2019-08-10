@@ -291,6 +291,36 @@ describe('React Image Engine', () => {
   test('onImageLoad', () => {
     const spy = jest.spyOn(instance, 'onImageLoad') as any;
     const spySetState = jest.spyOn(Img.prototype, 'setState') as any;
+    const spySetImageLoadedState = jest.spyOn(instance, 'setImageLoadedState');
+    const spySetImageLoadedStateWithDelay = jest.spyOn(
+      instance,
+      'setImageLoadedStateWithDelay'
+    );
+
+    spy();
+
+    expect(wrapper.state()).toEqual({
+      imgSrc: 'https://source.unsplash.com/random',
+      isLoaded: true,
+      isLoading: false,
+      error: void 0,
+    });
+
+    expect(spySetState).toBeCalled();
+    expect(spySetImageLoadedState).toHaveBeenCalled();
+
+    wrapper.setProps({
+      delay: 300,
+    });
+
+    spy();
+
+    expect(spySetImageLoadedStateWithDelay).toHaveBeenCalled();
+  });
+
+  test('setImageLoadedState', () => {
+    const spy = jest.spyOn(instance, 'onImageLoad') as any;
+    const spySetState = jest.spyOn(Img.prototype, 'setState') as any;
     const spyInvokePropsOnload = jest.spyOn(
       instance,
       'invokePropsOnload'
@@ -309,6 +339,25 @@ describe('React Image Engine', () => {
 
     expect(spySetState).toBeCalled();
     expect(spyInvokePropsOnload).toBeCalled();
+  });
+
+  test('setImageLoadedStateWithDelay', () => {
+    const spy = jest.spyOn(instance, 'setImageLoadedStateWithDelay') as any;
+    const testImage = new Image();
+    testImage.src = 'https://source.unsplash.com/random';
+
+    jest.useFakeTimers();
+
+    wrapper.setProps({
+      delay: 300,
+    });
+
+    spy();
+
+    expect(setTimeout).toHaveBeenCalledTimes(1);
+    expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 300);
+
+    jest.runAllTimers();
   });
 
   test('onImageError - WITH fallback defined AND WITHOUT error', () => {
