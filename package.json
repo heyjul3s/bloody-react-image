@@ -18,6 +18,9 @@
   "peerDependencies": {
     "react": ">=16.3.0"
   },
+  "resolutions": {
+    "@types/react": "^16.8.24"
+  },
   "keywords": [
     "bloody-react-image",
     "bloody-react-img",
