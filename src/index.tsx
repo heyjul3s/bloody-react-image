@@ -2,17 +2,21 @@ import * as React from 'react';
 import * as utils from './utils';
 
 export type ImgProps = {
-  alt: string;
+  alt?: string;
   ariaLabel?: string;
   ariaLabelledBy?: string;
   ariaDescribedBy?: string;
   className?: string;
   crossOrigin?: CrossOriginType;
+  delay?: number;
   decode?: boolean;
   decoding?: DecodingType;
   fallbackImageUrl?: string;
   fit?: string;
-  ImagePlaceholder?: React.ElementType<ImagePlaceholderProps>;
+  ImagePlaceholder?:
+    | React.ElementType<ImagePlaceholderProps>
+    | React.ComponentClass
+    | React.FunctionComponent;
   onload?: (imageState: PropsOnloadArg) => void;
   onerror?: (imageState: PropsOnloadArg) => void;
   position?: string;
@@ -166,6 +170,12 @@ export class Img extends React.Component<ImgProps, ImgState> {
   };
 
   onImageLoad = () => {
+    !!this.props.delay
+      ? this.setImageLoadedStateWithDelay()
+      : this.setImageLoadedState();
+  };
+
+  setImageLoadedState = () => {
     this.setState(
       () => ({
         isLoading: false,
@@ -174,6 +184,12 @@ export class Img extends React.Component<ImgProps, ImgState> {
       }),
       this.invokePropsOnload
     );
+  };
+
+  setImageLoadedStateWithDelay = () => {
+    setTimeout(() => {
+      this.setImageLoadedState();
+    }, this.props.delay);
   };
 
   onImageError = (error: any) => {
