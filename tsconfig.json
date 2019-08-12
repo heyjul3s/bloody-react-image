@@ -16,7 +16,7 @@
     "suppressImplicitAnyIndexErrors": true,
     "target": "es2017"
   },
-  "include": ["src/**/*", "demo/demo.loader.tsx"],
+  "include": ["src/**/*", "demo/**/*"],
   "exclude": [
     ".git",
     "coverage",

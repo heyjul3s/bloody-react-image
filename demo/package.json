@@ -1,0 +1,23 @@
+{
+  "name": "bloody-react-image-demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "webpack-dev-server --config webpack.config.js --info --progress --colors --display-error-details",
+    "build": "webpack --config webpack.config.js --info --progress --colors --display-error-details"
+  },
+  "resolutions": {
+    "@types/react": "^16.8.24"
+  },
+  "devDependencies": {
+    "awesome-typescript-loader": "^5.2.1",
+    "html-webpack-plugin": "^3.2.0",
+    "webpack": "^4.39.1",
+    "webpack-cli": "^3.3.6",
+    "webpack-dev-server": "^3.7.2"
+  },
+  "dependencies": {
+    "react": "^16.8.6"
+  }
+}
