@@ -4,7 +4,7 @@ import { withKnobs, text } from '@storybook/addon-knobs';
 import { withA11y } from '@storybook/addon-a11y';
 import { withInfo } from '@storybook/addon-info';
 import { Img } from './index';
-import { Loading } from '../demo/demo.loader';
+import { Loading } from '../demo/loader';
 
 storiesOf('Img', module)
   .addDecorator(withA11y)
