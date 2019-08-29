@@ -2,14 +2,12 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, text } from '@storybook/addon-knobs';
 import { withA11y } from '@storybook/addon-a11y';
-import { withInfo } from '@storybook/addon-info';
 import { Img } from './index';
 import { Loading } from '../demo/loader';
 
 storiesOf('Img', module)
   .addDecorator(withA11y)
   .addDecorator(withKnobs)
-  .addDecorator(withInfo)
   .addParameters({ jest: ['Img'] })
   .add('Image Render', () => {
     const imgUrl = 'https://source.unsplash.com/random/200x200';
