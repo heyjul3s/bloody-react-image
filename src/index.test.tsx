@@ -8,7 +8,7 @@ Enzyme.configure({
   adapter: new Adapter(),
 });
 
-describe('React Image Engine', () => {
+describe('Bloody React Image', () => {
   let wrapper: Enzyme.ReactWrapper<ImgProps, ImgState, Img>;
   let instance: Img;
 
