@@ -2,7 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, text } from '@storybook/addon-knobs';
 import { withA11y } from '@storybook/addon-a11y';
-import { Img } from './index';
+import Img from './index';
 import { Loading } from '../demo/loader';
 
 const altText = text('Alt Text', 'Lorem Ipsum Dolor Sit Amet');
@@ -92,7 +92,7 @@ storiesOf('Img', module)
         fit="cover"
         position="50% 50%"
         onerror={args => {
-          console.log(args);
+          console.log(`Houston, we've a problem`, args);
         }}
       />
     );

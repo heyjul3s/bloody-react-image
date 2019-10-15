@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Img Component I can pass an additional onload callback 1`] = `ReactWrapper {}`;
+
+exports[`Img Component I can see different image sources based on the provided srcSet and sizes attributes provided 1`] = `ReactWrapper {}`;
+
+exports[`Img Component I can see the image rendered as a background image when I add child elements to the component 1`] = `ReactWrapper {}`;
+
+exports[`Img Component I can see the image when I provide it with a source URL 1`] = `ReactWrapper {}`;
+
+exports[`Img Component I can see the image when I provide it with an invalid source URL but also include a fallback imageg source URL 1`] = `ReactWrapper {}`;
