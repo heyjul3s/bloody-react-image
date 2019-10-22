@@ -12,7 +12,7 @@ describe('Bloody React Image', () => {
   let wrapper: Enzyme.ReactWrapper<ImgProps, ImgState, Img>;
   let instance: Img;
 
-  const IMG_URL: string = 'https://source.unsplash.com/random';
+  const IMG_URL: string = './test-img.jpeg';
 
   const props: ImgProps = {
     className: void 0,
@@ -279,8 +279,6 @@ describe('Bloody React Image', () => {
     spy();
 
     expect(wrapper.state().isLoaded).toEqual(false);
-    expect(wrapper.state().isLoaded).toEqual(false);
-    // * NOTE: state.isLoading will remain true as it attempts to run a 2nd time with fallbackImage
     expect(wrapper.state().isLoading).toEqual(true);
     expect(wrapper.state().error).toBeDefined();
 
