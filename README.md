@@ -1,4 +1,4 @@
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/) [![Build Status](https://travis-ci.org/heyjul3s/bloody-react-image.svg?branch=master)](https://travis-ci.org/heyjul3s/bloody-react-image)
+[![Build Status](https://travis-ci.org/heyjul3s/bloody-react-image.svg?branch=master)](https://travis-ci.org/heyjul3s/bloody-react-image)
 
 # Bloody React Image
 
@@ -10,7 +10,7 @@ A React component for your image rendering/handling needs.
 - img srcset and sizes support and handling
 - WAI-ARIA support
 - CSS object-fit, object-position support and handling for IE 11 (It is 2019, and next year we'll be in the roaring 20s... why do we hurt ourselves like this?)
-- supports React 16.3 and above
+- supports React 16.8 and above
 
 This component first attempts to load your intended image. If this fails, it will attempt to render a fallback image if provided. Should the fallback image fail (or is not defined) as well, the component will simply render nothing at all and saves you from a broken image icon floating around on your view. That's the gist of it. Also note that, the image will only appear once it is fully loaded so you may want to add a placeholder (which you can pass in as props, see below for info).
 
@@ -95,7 +95,6 @@ import { Img } from 'bloody-react-image';
 A placeholder component can be included for while the image is loading. Note that there are 3 props that will be available to you:
 
 - **isImgLoading: boolean**
-- **isImgLoaded: boolean**
 - **isImgError: string | Error**.
 
 Simply create one:
