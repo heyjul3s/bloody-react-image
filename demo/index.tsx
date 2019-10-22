@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Img from '../src/index';
+import Img from '../src/index_';
 import { Loading } from './loader';
 
 const SM = 'https://source.unsplash.com/random/640x480';

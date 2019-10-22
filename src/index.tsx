@@ -29,11 +29,13 @@ export type ImgProps = {
 export type ImgState = {
   imgSrc: string;
   isLoading: boolean;
+  isLoaded: boolean;
   error: Error | string | undefined;
 };
 
 export type ImagePlaceholderProps = {
   isImgLoading: boolean;
+  isImgLoaded: boolean;
   isImgError: Error | string | undefined;
 };
 
@@ -41,222 +43,275 @@ export type CrossOriginType = 'anonymous' | 'use-credentials';
 
 export type DecodingType = 'async' | 'sync' | 'auto';
 
-export type PropsOnloadArg = ImgState & ImageDimensions;
-
 export type ImageDimensions = {
   imageWidth: number | undefined;
   imageHeight: number | undefined;
 };
 
-const Img: React.FunctionComponent<ImgProps> = ({
-  children,
-  className,
-  alt,
-  crossOrigin,
-  decode,
-  decoding,
-  delay,
-  ariaLabel,
-  ariaLabelledBy,
-  ariaDescribedBy,
-  fallbackImageUrl,
-  ImagePlaceholder,
-  role = 'img',
-  style = {},
-  fit = 'contain',
-  onload,
-  onerror,
-  position = '50% 50%',
-  src,
-  srcset,
-  sizes,
-}) => {
-  let image: HTMLImageElement;
+export type PropsOnloadArg = ImgState & ImageDimensions;
 
-  const [imgSrc, setImgSrc] = React.useState('');
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState(void 0);
+export class Img extends React.Component<ImgProps, ImgState> {
+  image: HTMLImageElement;
 
-  React.useEffect(() => {
-    initImageLoading();
-  }, []);
+  state: ImgState = {
+    imgSrc: '',
+    isLoading: false,
+    isLoaded: false,
+    error: void 0,
+  };
 
-  React.useEffect(() => {
-    if (isLoading) {
-      loadTempImage();
+  get supportsObjectFit(): boolean {
+    return (
+      !!(window as any).CSS &&
+      !!CSS.supports &&
+      !!CSS.supports('object-fit', 'cover') &&
+      !!CSS.supports('object-position', '0 0')
+    );
+  }
+
+  get isLoadImage(): boolean {
+    /* istanbul ignore next */
+    const { imgSrc, error }: ImgState = this.state;
+    return !!imgSrc && !error;
+  }
+
+  get imageStyles() {
+    /* istanbul ignore next */
+    const {
+      style = {},
+      fit = 'contain',
+      position = '50% 50%',
+    }: ImgProps = this.props;
+
+    const { objectFit, objectPosition, ...styles }: React.CSSProperties = style;
+
+    return this.supportsObjectFit
+      ? {
+          objectFit: fit,
+          objectPosition: position,
+          ...styles,
+        }
+      : { ...styles };
+  }
+
+  get backgroundImageStyles(): React.CSSProperties {
+    /* istanbul ignore next */
+    const { fit = 'contain', position = '50% 50%', style = {} } = this.props;
+    const { imgSrc } = this.state;
+
+    return {
+      display: 'block',
+      backgroundImage: `url("${imgSrc}")`,
+      backgroundPosition: position,
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: fit.replace('fill', '100% 100%').replace('none', 'auto'),
+      ...style,
+    };
+  }
+
+  get imageSrcset(): string | undefined {
+    const { srcset } = this.props;
+    return isNonEmptyString(srcset) ? srcset : void 0;
+  }
+
+  get imageSizes(): string | undefined {
+    const { srcset, sizes } = this.props;
+    return isNonEmptyString(srcset) && isNonEmptyString(sizes) ? sizes : void 0;
+  }
+
+  get imageSourceFromProps(): string {
+    return this.state.error && !!this.props.fallbackImageUrl
+      ? this.props.fallbackImageUrl
+      : this.props.src;
+  }
+
+  componentDidMount() {
+    if (!this.state.isLoading && !this.state.isLoaded) {
+      this.initImageLoading();
     }
-  }, [imgSrc]);
+  }
 
-  React.useEffect(() => {
-    if (!!image) {
-      invokePropsOnload();
+  initImageLoading() {
+    this.setState(
+      () => ({
+        imgSrc: this.imageSourceFromProps,
+        isLoading: true,
+        isLoaded: false,
+      }),
+      this.loadTempImage
+    );
+  }
+
+  createNewImage = (imgSrc: string) => {
+    this.image = new Image();
+    this.image.src = imgSrc;
+  };
+
+  loadTempImage() {
+    this.createNewImage(this.state.imgSrc);
+    this.addOnLoadAndOnErrorHandlersToImage();
+  }
+
+  addOnLoadAndOnErrorHandlersToImage = () => {
+    if (!this.image) {
+      this.onImageError(new Error('Invalid image.'));
+      return;
     }
-  }, [isLoading, image]);
 
-  React.useEffect(() => {
-    invokePropsOnError();
-  }, [error]);
-
-  const isLoadImage = !!imgSrc && !error;
-
-  const { objectFit, objectPosition, ...styles }: React.CSSProperties = style;
-
-  const supportsObjectFit =
-    !!(window as any).CSS &&
-    !!CSS.supports &&
-    !!CSS.supports('object-fit', 'cover') &&
-    !!CSS.supports('object-position', '0 0');
-
-  const imageStyles = supportsObjectFit
-    ? { objectFit: fit, objectPosition: position, ...styles }
-    : { ...styles };
-
-  const backgroundImageStyles: React.CSSProperties = {
-    display: 'block',
-    backgroundImage: `url("${imgSrc}")`,
-    backgroundPosition: position,
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: fit.replace('fill', '100% 100%').replace('none', 'auto'),
-    ...style,
+    if (this.props.decode && !!this.image.decode) {
+      this.image.decode().then(this.onImageLoad, this.onImageError);
+    } else {
+      this.image.onload = this.onImageLoad;
+      this.image.onerror = this.onImageError;
+    }
   };
 
-  const imageSrcset: string | undefined = isNonEmptyString(srcset)
-    ? srcset
-    : void 0;
-
-  const imageSizes: string | undefined =
-    isNonEmptyString(srcset) && isNonEmptyString(sizes) ? sizes : void 0;
-
-  const getImgSrc = error && !!fallbackImageUrl ? fallbackImageUrl : src;
-
-  const initImageLoading = () => {
-    setImgSrc(getImgSrc);
-    setIsLoading(true);
+  onImageLoad = () => {
+    !!this.props.delay
+      ? this.setImageLoadedStateWithDelay()
+      : this.setImageLoadedState();
   };
 
-  const loadTempImage = () => {
-    createNewImage(imgSrc);
-    addOnLoadAndOnErrorHandlersToImage(image);
+  setImageLoadedState = () => {
+    this.setState(
+      () => ({
+        isLoading: false,
+        isLoaded: true,
+        error: void 0,
+      }),
+      this.invokePropsOnload
+    );
   };
 
-  const addOnLoadAndOnErrorHandlersToImage = (image: HTMLImageElement) => {
-    if (!image) {
-      throw new Error(
-        'Unable to process image. Invalid image and or attributes provided.'
+  setImageLoadedStateWithDelay = () => {
+    setTimeout(() => {
+      this.setImageLoadedState();
+    }, this.props.delay);
+  };
+
+  onImageError = (error: any) => {
+    const errorMsg =
+      error && error.message
+        ? `${error.message}`
+        : 'The source image cannot be decoded';
+
+    if (!this.state.error && !!this.props.fallbackImageUrl) {
+      this.setState(
+        () => ({
+          imgSrc: this.props.fallbackImageUrl,
+          isLoading: true,
+          isLoaded: false,
+          error: errorMsg,
+        }),
+        this.loadTempImage
+      );
+    } else {
+      this.setState(
+        () => ({
+          imgSrc: '',
+          isLoading: false,
+          isLoaded: false,
+          error: void 0,
+        }),
+        this.invokePropsOnError
       );
     }
 
-    if (decode && !!image.decode) {
-      image.decode().then(onImageLoad, onImageError);
-    } else {
-      image.onload = onImageLoad;
-      image.onerror = onImageError;
+    this.onImageError = null;
+  };
+
+  invokePropsOnload = () => {
+    /* istanbul ignore next */
+    if (!!this.props.onload) {
+      this.props.onload({
+        ...this.state,
+        ...this.getLoadedTempImageDimensions(),
+      });
     }
   };
 
-  const createNewImage = (src: string) => {
-    image = new Image();
-    image.src = src;
+  getLoadedTempImageDimensions = (): ImageDimensions => {
+    return {
+      imageWidth: this.image.width,
+      imageHeight: this.image.height,
+    };
   };
 
-  let onImageError = () => {
-    if (!!fallbackImageUrl) {
-      setImgSrc(fallbackImageUrl);
-      setIsLoading(true);
-    }
-
-    setError(
-      'Unable to process image. Attempting to use fallback image for resolution.'
-    );
-
-    onImageError = null;
-  };
-
-  const invokePropsOnError = () => {
-    if (!!onerror) {
-      onerror({
-        imgSrc,
-        isLoading,
-        error,
+  invokePropsOnError = () => {
+    /* istanbul ignore next */
+    if (!!this.props.onerror) {
+      this.props.onerror({
+        ...this.state,
         imageWidth: void 0,
         imageHeight: void 0,
       });
     }
   };
 
-  const onImageLoad = () => {
-    !!delay ? setImageLoadedStateWithDelay() : setImageLoadedState();
-  };
+  render() {
+    const {
+      className,
+      alt,
+      crossOrigin,
+      decoding,
+      ariaLabel,
+      ariaLabelledBy,
+      ariaDescribedBy,
+      ImagePlaceholder,
+      role = 'img',
+    } = this.props;
 
-  const setImageLoadedState = () => {
-    setIsLoading(false);
-    setError(void 0);
-  };
+    const { imgSrc, isLoading, isLoaded, error } = this.state;
 
-  const setImageLoadedStateWithDelay = () => {
-    setTimeout(() => {
-      setImageLoadedState();
-    }, delay);
-  };
-
-  const invokePropsOnload = () => {
-    if (!!onload) {
-      onload({
-        imgSrc,
-        isLoading,
-        error,
-        imageWidth: image.width,
-        imageHeight: image.height,
-      });
+    if (!isLoaded && !isLoading && !!error) {
+      return null;
     }
-  };
 
-  if (!isLoading && !!error) {
-    return null;
+    return (
+      <React.Fragment>
+        {!!ImagePlaceholder && (
+          <ImagePlaceholder
+            isImgLoading={isLoading}
+            isImgLoaded={isLoaded}
+            isImgError={error}
+          />
+        )}
+
+        {this.isLoadImage && !this.props.children && (
+          <img
+            className={className}
+            src={imgSrc}
+            alt={alt}
+            crossOrigin={crossOrigin}
+            decoding={decoding}
+            srcSet={this.imageSrcset}
+            sizes={this.imageSizes}
+            aria-label={ariaLabel || alt}
+            aria-labelledby={ariaLabelledBy}
+            aria-describedby={ariaDescribedBy}
+            style={this.imageStyles as React.CSSProperties}
+          />
+        )}
+
+        {this.isLoadImage && this.props.children && (
+          <div
+            className={className}
+            role={role}
+            aria-label={ariaLabel || alt}
+            aria-describedby={ariaDescribedBy}
+            aria-labelledby={ariaLabelledBy}
+            style={this.backgroundImageStyles}
+          >
+            {this.props.children}
+          </div>
+        )}
+      </React.Fragment>
+    );
   }
-
-  return (
-    <React.Fragment>
-      {!!ImagePlaceholder && isLoading && (
-        <ImagePlaceholder isImgLoading={isLoading} isImgError={error} />
-      )}
-
-      {isLoadImage && !children && (
-        <img
-          className={className}
-          src={imgSrc}
-          alt={alt}
-          crossOrigin={crossOrigin}
-          decoding={decoding}
-          srcSet={imageSrcset}
-          sizes={imageSizes}
-          aria-label={ariaLabel || alt}
-          aria-labelledby={ariaLabelledBy}
-          aria-describedby={ariaDescribedBy}
-          style={imageStyles as React.CSSProperties}
-        />
-      )}
-
-      {isLoadImage && children && (
-        <div
-          className={className}
-          role={role}
-          aria-label={ariaLabel || alt}
-          aria-describedby={ariaDescribedBy}
-          aria-labelledby={ariaLabelledBy}
-          style={backgroundImageStyles}
-        >
-          {children}
-        </div>
-      )}
-    </React.Fragment>
-  );
-};
+}
 
 export const isString = (arg: any): boolean =>
   Object.prototype.toString.call(arg) === '[object String]';
 
 export const isNonEmptyString = (arg: any): boolean =>
   isString(arg) && arg.trim() !== '';
-
-export default Img;

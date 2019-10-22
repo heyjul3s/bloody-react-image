@@ -2,7 +2,9 @@
 
 exports[`Img Component I can pass an additional onload callback 1`] = `ReactWrapper {}`;
 
-exports[`Img Component I can see different image sources based on the provided srcSet and sizes attributes provided 1`] = `ReactWrapper {}`;
+exports[`Img Component I can pass an additional onload callback 2`] = `ReactWrapper {}`;
+
+exports[`Img Component I can see te placeholder component when the image is loading and view the image when it is loaded 1`] = `ReactWrapper {}`;
 
 exports[`Img Component I can see the image rendered as a background image when I add child elements to the component 1`] = `ReactWrapper {}`;
 
