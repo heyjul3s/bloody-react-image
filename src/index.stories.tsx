@@ -1,15 +1,11 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { withKnobs, text } from '@storybook/addon-knobs';
-import { withA11y } from '@storybook/addon-a11y';
 import { Img } from './index';
 import { Loading } from '../demo/loader';
 
-const altText = text('Alt Text', 'Lorem Ipsum Dolor Sit Amet');
+const altText = 'Lorem Ipsum Dolor Sit Amet';
 
 storiesOf('Img', module)
-  .addDecorator(withA11y)
-  .addDecorator(withKnobs)
   .addParameters({ jest: ['Img'] })
   .add('Image Render', () => {
     const imgUrl = 'https://source.unsplash.com/random/200x200';
@@ -39,7 +35,6 @@ storiesOf('Img', module)
   })
   .add('with image as Placeholder component', () => {
     const imgUrl = 'https://source.unsplash.com/random/400x400';
-    const altText = text('Alt Text', 'Lorem Ipsum Dolor Sit Amet');
 
     return (
       <div className="figure" style={{ position: 'relative' }}>
