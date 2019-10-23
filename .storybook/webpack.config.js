@@ -1,5 +1,4 @@
 const path = require('path');
-const TSDocgenPlugin = require('react-docgen-typescript-webpack-plugin');
 
 module.exports = ({ config }) => {
   config.resolve.modules = [
@@ -15,12 +14,10 @@ module.exports = ({ config }) => {
       'babel-loader',
       require.resolve('@storybook/addon-storysource/loader'),
       require.resolve('awesome-typescript-loader'),
-      require.resolve('react-docgen-typescript-loader'),
     ],
     enforce: 'pre',
   });
 
-  config.plugins.push(new TSDocgenPlugin());
   config.resolve.extensions.push('.ts', '.tsx');
 
   return config;
