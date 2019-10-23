@@ -4,13 +4,10 @@
   "description": "An ReactJS image component with options for fallback imagery, placeholder when loading and fallback for IE with object-fit usage.",
   "main": "lib/index.js",
   "scripts": {
-    "commit": "npx git-cz",
     "build": "rollup -c",
     "start": "start-storybook -p 5555",
     "test": "jest",
-    "test-watch": "jest --watch",
-    "test-output": "jest --json --outputFile=.jest-test-results.json || true",
-    "semantic-release": "semantic-release"
+    "test-watch": "jest --watch"
   },
   "files": [
     "lib"
@@ -46,18 +43,6 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "lint-staged ": {
-    "*.js": [
-      "prettier --write",
-      "git add"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "prepare-commit-msg": "exec < /dev/tty && git cz --hook"
-    }
-  },
   "jest": {
     "collectCoverage": true,
     "collectCoverageFrom": [
@@ -88,15 +73,12 @@
     "verbose": false
   },
   "devDependencies": {
-    "@storybook/addon-a11y": "^5.2.5",
-    "@storybook/addon-knobs": "^5.2.5",
     "@storybook/addon-storysource": "^5.2.5",
     "@storybook/react": "^5.2.5",
     "@types/enzyme": "^3.10.3",
     "@types/enzyme-adapter-react-16": "^1.0.5",
     "@types/jest": "^24.0.19",
     "@types/react": "^16.8.6",
-    "@types/storybook__addon-info": "^4.1.2",
     "@types/storybook__react": "^4.0.2",
     "awesome-typescript-loader": "^5.2.1",
     "babel-jest": "^24.9.0",
@@ -106,13 +88,9 @@
     "enzyme-to-json": "^3.4.3",
     "jest": "^24.9.0",
     "jest-cli": "^24.9.0",
-    "lint-staged": "^9.2.1",
     "react": "^16.8.6",
-    "react-docgen-typescript-loader": "^3.3.0",
-    "react-docgen-typescript-webpack-plugin": "^1.1.0",
     "rollup": "^1.25.1",
     "rollup-plugin-typescript2": "^0.24.3",
-    "rollup-plugin-uglify": "^6.0.3",
     "ts-jest": "^24.1.0",
     "tslib": "^1.10.0",
     "typescript": "^3.6.4"
@@ -121,10 +99,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/heyjul3s/bloody-react-image.git"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
   }
 }
